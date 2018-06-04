@@ -88,7 +88,7 @@ func (wt WalletType) String() string {
 const (
 	ARS WalletType = iota
 	BRL
-	CPL
+	CLP
 	EUR
 	ETH
 	XLM
@@ -98,7 +98,7 @@ const (
 var walletTypesID = map[WalletType]string{
 	ARS: "ARS",
 	BRL: "BRL",
-	CPL: "CPL",
+	CLP: "CLP",
 	EUR: "EUR",
 	ETH: "ETH",
 	XLM: "XLM",
@@ -108,7 +108,7 @@ var walletTypesID = map[WalletType]string{
 var walletTypesName = map[string]WalletType{
 	"ARS": ARS,
 	"BRL": BRL,
-	"CPL": CPL,
+	"CLP": CLP,
 	"EUR": EUR,
 	"ETH": ETH,
 	"XLM": XLM,

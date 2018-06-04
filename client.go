@@ -19,6 +19,38 @@ const version = "v1/"
 const limit = 100
 const maxRetries = 5
 
+// MarketAssetMapping simplifies the obtention of the asset of a market
+var MarketAssetMapping = map[Market]WalletType{
+	ETHARS: ETH,
+	ETHBRL: ETH,
+	ETHCLP: ETH,
+	ETHEUR: ETH,
+	XLMARS: XLM,
+	XLMBRL: XLM,
+	XLMCLP: XLM,
+	XLMEUR: XLM,
+	BTCARS: BTC,
+	BTCBRL: BTC,
+	BTCCLP: BTC,
+	BTCEUR: BTC,
+}
+
+// MarketCurrencyMapping simplifies the obtention of the currency of a market
+var MarketCurrencyMapping = map[Market]WalletType{
+	ETHARS: ARS,
+	ETHBRL: BRL,
+	ETHCLP: CLP,
+	ETHEUR: EUR,
+	XLMARS: ARS,
+	XLMBRL: BRL,
+	XLMCLP: CLP,
+	XLMEUR: EUR,
+	BTCARS: ARS,
+	BTCBRL: BRL,
+	BTCCLP: CLP,
+	BTCEUR: EUR,
+}
+
 func (c Client) formURL(initialURL string, paramsMap map[string]string) (string, error) {
 	baseURL, err := url.Parse(initialURL)
 	if err != nil {
