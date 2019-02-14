@@ -1,16 +1,17 @@
 package cryptomkt
 
 import (
-	"bytes"
 	"encoding/json"
+	"net/http"
 	"strconv"
 	"time"
 )
 
 // Client represents a connection to the CryptoMKT API
 type Client struct {
-	Key    string
-	Secret string
+	key    string
+	secret string
+	client *http.Client
 }
 
 // FlexInt is a fix for a wrong return on the API, where "null" is returned instead of null
@@ -34,107 +35,28 @@ func (fi *FlexInt) UnmarshalJSON(b []byte) error {
 }
 
 // OrderType represents a buy or sell signal
-type OrderType int
+type OrderType string
 
 // OrderType possible values
 const (
-	Buy OrderType = iota
-	Sell
+	BUY  OrderType = "buy"
+	SELL OrderType = "sell"
 )
 
-func (ot OrderType) String() string {
-	return orderTypesID[ot]
-}
-
-var orderTypesID = map[OrderType]string{
-	Buy:  "buy",
-	Sell: "sell",
-}
-
-var orderTypesName = map[string]OrderType{
-	"buy":  Buy,
-	"sell": Sell,
-}
-
-// MarshalJSON converts an OrderType to string
-func (ot *OrderType) MarshalJSON() ([]byte, error) {
-	buffer := bytes.NewBufferString(`"`)
-	buffer.WriteString(orderTypesID[*ot])
-	buffer.WriteString(`"`)
-	return buffer.Bytes(), nil
-}
-
-// UnmarshalJSON converts a string to an OrderType
-func (ot *OrderType) UnmarshalJSON(b []byte) error {
-	// unmarshal as string
-	var s string
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-	// lookup value
-	*ot = orderTypesName[s]
-	return nil
-}
-
 // WalletType represents a CryptoMKT currency
-type WalletType int
-
-func (wt WalletType) String() string {
-	return walletTypesID[wt]
-}
+type WalletType string
 
 // WalletType possible values
 const (
-	ARS WalletType = iota
-	BRL
-	CLP
-	EUR
-	ETH
-	XLM
-	BTC
+	ARS WalletType = "ARS"
+	BRL WalletType = "BRL"
+	CLP WalletType = "CLP"
+	EUR WalletType = "EUR"
+	ETH WalletType = "ETH"
+	XLM WalletType = "XLM"
+	BTC WalletType = "BTC"
+	EOS WalletType = "EOS"
 )
-
-var walletTypesID = map[WalletType]string{
-	ARS: "ARS",
-	BRL: "BRL",
-	CLP: "CLP",
-	EUR: "EUR",
-	ETH: "ETH",
-	XLM: "XLM",
-	BTC: "BTC",
-}
-
-var walletTypesName = map[string]WalletType{
-	"ARS": ARS,
-	"BRL": BRL,
-	"CLP": CLP,
-	"EUR": EUR,
-	"ETH": ETH,
-	"XLM": XLM,
-	"BTC": BTC,
-}
-
-// MarshalJSON converts a WalletType to string
-func (wt *WalletType) MarshalJSON() ([]byte, error) {
-	buffer := bytes.NewBufferString(`"`)
-	buffer.WriteString(walletTypesID[*wt])
-	buffer.WriteString(`"`)
-	return buffer.Bytes(), nil
-}
-
-// UnmarshalJSON converts a string to a WalletType
-func (wt *WalletType) UnmarshalJSON(b []byte) error {
-	// unmarshal as string
-	var s string
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-	// lookup value
-	*wt = walletTypesName[s]
-	return nil
-}
 
 // Time represents the custom time format from CryptoMKT
 type Time struct {
@@ -168,78 +90,27 @@ type Pagination struct {
 }
 
 // Market represents a Market in the CryptoMKT API
-type Market int
+type Market string
 
 // OrderType possible values
 const (
-	ETHARS Market = iota
-	ETHEUR
-	ETHBRL
-	XLMARS
-	XLMEUR
-	XLMBRL
-	BTCARS
-	BTCEUR
-	BTCBRL
-	ETHCLP
-	XLMCLP
-	BTCCLP
+	ETHARS Market = "ETHARS"
+	ETHEUR Market = "ETHEUR"
+	ETHBRL Market = "ETHBRL"
+	ETHCLP Market = "ETHCLP"
+	XLMARS Market = "XLMARS"
+	XLMEUR Market = "XLMEUR"
+	XLMBRL Market = "XLMBRL"
+	XLMCLP Market = "XLMCLP"
+	BTCARS Market = "BTCARS"
+	BTCEUR Market = "BTCEUR"
+	BTCBRL Market = "BTCBRL"
+	BTCCLP Market = "BTCCLP"
+	EOSARS Market = "EOSARS"
+	EOSEUR Market = "EOSEUR"
+	EOSBRL Market = "EOSBRL"
+	EOSCLP Market = "EOSCLP"
 )
-
-func (m Market) String() string {
-	return marketsID[m]
-}
-
-var marketsID = map[Market]string{
-	ETHARS: "ETHARS",
-	ETHEUR: "ETHEUR",
-	ETHBRL: "ETHBRL",
-	XLMARS: "XLMARS",
-	XLMEUR: "XLMEUR",
-	XLMBRL: "XLMBRL",
-	BTCARS: "BTCARS",
-	BTCEUR: "BTCEUR",
-	BTCBRL: "BTCBRL",
-	ETHCLP: "ETHCLP",
-	XLMCLP: "XLMCLP",
-	BTCCLP: "BTCCLP",
-}
-
-var marketsName = map[string]Market{
-	"ETHARS": ETHARS,
-	"ETHEUR": ETHEUR,
-	"ETHBRL": ETHBRL,
-	"XLMARS": XLMARS,
-	"XLMEUR": XLMEUR,
-	"XLMBRL": XLMBRL,
-	"BTCARS": BTCARS,
-	"BTCEUR": BTCEUR,
-	"BTCBRL": BTCBRL,
-	"ETHCLP": ETHCLP,
-	"XLMCLP": XLMCLP,
-	"BTCCLP": BTCCLP,
-}
-
-// MarshalJSON converts a Market to string
-func (m *Market) MarshalJSON() ([]byte, error) {
-	buffer := bytes.NewBufferString(`"`)
-	buffer.WriteString(marketsID[*m])
-	buffer.WriteString(`"`)
-	return buffer.Bytes(), nil
-}
-
-// UnmarshalJSON converts a string to a Market
-func (m *Market) UnmarshalJSON(b []byte) error {
-	// unmarshal as string
-	var s string
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-	// lookup value
-	*m = marketsName[s]
-	return nil
-}
 
 // MarketResponse is the response of the Markets endpoint
 type MarketResponse struct {
@@ -249,13 +120,13 @@ type MarketResponse struct {
 
 // Ticker represents a Ticker in the CryptoMKT API
 type Ticker struct {
-	High      float64 `json:",string"`
-	Volume    float64 `json:",string"`
-	Low       float64 `json:",string"`
-	Ask       float64 `json:",string"`
+	High      string
+	Volume    string
+	Low       string
+	Ask       string
 	Timestamp Time
-	Bid       float64 `json:",string"`
-	LastPrice float64 `json:"last_price,string"`
+	Bid       string
+	LastPrice string `json:"last_price"`
 	Market    Market
 }
 
@@ -268,8 +139,8 @@ type TickerResponse struct {
 // OrderBookOrder represents an Order in the OrderBook
 type OrderBookOrder struct {
 	Timestamp Time
-	Price     float64 `json:",string"`
-	Amount    float64 `json:",string"`
+	Price     string
+	Amount    string
 }
 
 // OrderBookResponse is the response of the Book endpoint
@@ -283,8 +154,8 @@ type OrderBookResponse struct {
 type Trade struct {
 	MarketTaker OrderType `json:"market_taker"`
 	Timestamp   Time
-	Price       float64 `json:",string"`
-	Amount      float64 `json:",string"`
+	Price       string
+	Amount      string
 	Market      Market
 }
 
@@ -297,9 +168,9 @@ type TradesResponse struct {
 
 // Amount represents the different amounts that compose an Order
 type Amount struct {
-	Original  float64 `json:",string"`
-	Remaining float64 `json:",string,omitempty"`
-	Executed  float64 `json:",string,omitempty"`
+	Original  string
+	Remaining string `json:",omitempty"`
+	Executed  string `json:",omitempty"`
 }
 
 // Order is the representation of an Order in the CryptoMKT API
@@ -307,9 +178,9 @@ type Order struct {
 	Status            string
 	CreatedAt         Time `json:"created_at"`
 	Amount            Amount
-	ExecutionPrice    float64 `json:"execution_price,string,omitempty"`
-	AvgExecutionPrice float64 `json:"avg_execution_price,string,omitempty"`
-	Price             float64 `json:",string"`
+	ExecutionPrice    string `json:"execution_price,omitempty"`
+	AvgExecutionPrice string `json:"avg_execution_price,omitempty"`
+	Price             string
 	Type              OrderType
 	ID                string
 	Market            Market
@@ -323,7 +194,7 @@ type OrdersResponse struct {
 	Data       []Order
 }
 
-// OrderResponse is the response of the endpoints Create, Status, and Cancel
+// OrderResponse is the response of the endpoints CreateOrder, OrderStatus, and CancelOrder
 type OrderResponse struct {
 	Status string
 	Data   Order
@@ -331,13 +202,28 @@ type OrderResponse struct {
 
 // Wallet represents a Wallet in the CryptoMKT API
 type Wallet struct {
-	Available float64 `json:",string"`
+	Available string
 	Wallet    WalletType
-	Balance   float64 `json:",string"`
+	Balance   string
 }
 
 // BalanceResponse is the response of the Balance endpoint
 type BalanceResponse struct {
 	Status string
 	Data   []Wallet
+}
+
+type InstantQuote struct {
+	Obtained string
+	Required string
+}
+
+type InstantGetResponse struct {
+	Status string
+	Data InstantQuote
+}
+
+type InstantCreateResponse struct {
+	Status string
+	Data string
 }
